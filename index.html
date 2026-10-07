@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sameer Bags · Quotation · Sale Invoice · Challan</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* ==================== RESET & VARIABLES ==================== */
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --primary: #1e3c5c;
+      --primary-light: #2d5075;
+      --accent: #b8860b;
+      --success: #2a6e4b;
+      --danger: #b13e3e;
+      --warning: #d9a022;
+      --purple: #6a3d9a;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #1b2e40;
+      --text-light: #5e7e9c;
+      --border: #d9e2ec;
+      --radius: 16px;
+      --shadow: 0 4px 16px rgba(0, 20, 30, 0.08);
+      --brand-green: #0d4b2e;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+    }
+
+    /* ==================== APP HEADER ==================== */
+    .app-header {
+      background: var(--brand-green);
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .app-header .brand { display: flex; align-items: center; gap: 10px; }
+
+    .app-header .brand .logo-img {
+      width: 44px; height: 44px; border-radius: 50%;
+      object-fit: contain; background: white; padding: 2px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); flex-shrink: 0;
+    }
+
+    .app-header .brand h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
+
+    .app-header .brand small {
+      font-size: 0.55rem; color: #a8d5b8; display: block;
+      letter-spacing: 0.4px; text-transform: uppercase;
+      font-weight: 600; margin-top: 1px;
+    }
+
+    .app-header .brand .brand-contact {
+      font-size: 0.52rem; color: #c8e0d4;
+      display: block; margin-top: 2px;
+    }
+
+    .header-actions { display: flex; gap: 8px; }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: none; color: white;
+      width: 36px; height: 36px; border-radius: 10px;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s;
+    }
+
+    .icon-btn:active { background: rgba(255, 255, 255, 0.3); transform: scale(0.95); }
+
+    /* ==================== BODY ==================== */
+    .app-body {
+      flex: 1; overflow-y: auto; padding: 14px 14px 100px;
+      -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+    }
+
+    /* ==================== CARD ==================== */
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(217, 226, 236, 0.6);
+    }
+
+    .card-title {
+      font-size: 0.8rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--primary); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+      padding-bottom: 10px; border-bottom: 1px dashed #d0dde8;
+    }
+
+    .card-title i { color: var(--accent); font-size: 0.9rem; }
+
+    .card-title .badge {
+      margin-left: auto; background: var(--accent); color: white;
+      font-size: 0.65rem; padding: 3px 8px;
+      border-radius: 20px; font-weight: 700;
+    }
+
+    /* ==================== FIELDS ==================== */
+    .field-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .field-row:last-child { margin-bottom: 0; }
+
+    .field-row label {
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--text-light); text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field-input, .field-select, .field-textarea {
+      background: #f8fafc;
+      border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 12px 14px;
+      font-size: 0.95rem; color: var(--text);
+      outline: none; transition: border-color 0.2s, background 0.2s;
+      width: 100%; font-family: inherit;
+    }
+
+    .field-input:focus, .field-select:focus, .field-textarea:focus {
+      border-color: var(--primary); background: white;
+      box-shadow: 0 0 0 3px rgba(30, 60, 92, 0.08);
+    }
+
+    .field-textarea { resize: vertical; min-height: 60px; font-family: inherit; }
+    .field-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ==================== TERMS EDITOR (App) ==================== */
+    .terms-list-app {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .terms-list-app .term-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      background: #f8fafc;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    .terms-list-app .term-num {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--primary);
+      background: #e6f0fa;
+      padding: 3px 7px;
+      border-radius: 20px;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .terms-list-app .term-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 0.82rem;
+      color: var(--text);
+      font-family: inherit;
+      resize: vertical;
+      min-height: 32px;
+      padding: 4px 0;
+      line-height: 1.4;
+    }
+
+    /* ==================== DOC TYPE TABS ==================== */
+    .doc-type-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .doc-tab {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-light);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+      font-family: inherit;
+      line-height: 1.2;
+    }
+
+    .doc-tab i { font-size: 1.1rem; }
+    .doc-tab:active { transform: scale(0.95); }
+    .doc-tab.active { color: white; border-color: transparent; }
+    .doc-tab[data-doctype="quote"].active {
+      background: linear-gradient(135deg, #1e3c5c, #2d5075);
+      box-shadow: 0 4px 12px rgba(30, 60, 92, 0.3);
+    }
+    .doc-tab[data-doctype="order"].active {
+      background: linear-gradient(135deg, #6a3d9a, #8e5fc9);
+      box-shadow: 0 4px 12px rgba(106, 61, 154, 0.3);
+    }
+    .doc-tab[data-doctype="challan"].active {
+      background: linear-gradient(135deg, #b13e3e, #d45a5a);
+      box-shadow: 0 4px 12px rgba(177, 62, 62, 0.3);
+    }
+
+    /* ==================== TOGGLE ==================== */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #f8fafc, #eef4fa);
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      cursor: pointer; transition: all 0.2s; user-select: none;
+    }
+
+    .toggle-row:active { transform: scale(0.98); }
+
+    .toggle-row.active {
+      border-color: var(--success);
+      background: linear-gradient(135deg, #f0faf5, #e6f5ee);
+    }
+
+    .toggle-row.active.discount-active {
+      border-color: #d9a022;
+      background: linear-gradient(135deg, #fffaf0, #fef3d0);
+    }
+
+    .toggle-info { display: flex; align-items: center; gap: 12px; }
+
+    .toggle-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: var(--primary); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; transition: background 0.2s; flex-shrink: 0;
+    }
+
+    .toggle-row.active .toggle-icon { background: var(--success); }
+    .toggle-row.active.discount-active .toggle-icon { background: #d9a022; }
+
+    .toggle-text h4 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .toggle-text p { font-size: 0.72rem; color: var(--text-light); font-weight: 500; }
+
+    .toggle-switch {
+      position: relative; width: 52px; height: 30px;
+      background: #cbdae8; border-radius: 30px;
+      transition: background 0.25s; flex-shrink: 0;
+    }
+
+    .toggle-switch::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 24px; height: 24px; background: white; border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.25s;
+    }
+
+    .toggle-row.active .toggle-switch { background: var(--success); }
+    .toggle-row.active.discount-active .toggle-switch { background: #d9a022; }
+    .toggle-row.active .toggle-switch::after { transform: translateX(22px); }
+
+    .settings-panel {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s, margin 0.3s;
+      background: #f8fafc; border-radius: 14px;
+      border: 1.5px solid transparent; margin-bottom: 0;
+    }
+
+    .settings-panel.open {
+      max-height: 220px; padding: 14px 16px;
+      border-color: var(--border); margin-bottom: 12px;
+    }
+
+    .percent-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; margin-top: 8px;
+    }
+
+    .percent-chip {
+      padding: 10px 6px; border-radius: 10px;
+      background: white; border: 1.5px solid var(--border);
+      text-align: center; font-size: 0.85rem;
+      font-weight: 700; color: var(--primary);
+      cursor: pointer; transition: all 0.15s;
+    }
+
+    .percent-chip:active { transform: scale(0.95); }
+    .percent-chip.selected { background: var(--success); color: white; border-color: var(--success); }
+    .percent-chip.discount-chip.selected { background: #d9a022; border-color: #d9a022; }
+
+    /* ==================== ITEMS ==================== */
+    .item-card {
+      background: #fbfdff; border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 12px;
+      margin-bottom: 12px; transition: border-color 0.15s;
+    }
+
+    .item-card:focus-within { border-color: var(--primary); }
+    .item-card.has-spec { border-left: 4px solid var(--purple); }
+
+    .item-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px; gap: 6px;
+    }
+
+    .item-number {
+      font-size: 0.7rem; font-weight: 800; color: white;
+      background: var(--primary); padding: 3px 10px;
+      border-radius: 20px; letter-spacing: 0.5px;
+    }
+
+    .item-header-actions { display: flex; align-items: center; gap: 6px; }
+
+    .item-spec-toggle {
+      background: #f0e6fa;
+      border: 1.5px solid #c8a8e0;
+      color: var(--purple);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      transition: all 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .item-spec-toggle:active { transform: scale(0.95); }
+    .item-spec-toggle.active { background: var(--purple); color: white; border-color: var(--purple); }
+    .item-spec-toggle.has-data::before { content: "●"; color: #d9a022; font-size: 0.8rem; margin-right: 2px; }
+
+    .item-remove {
+      background: #fde8e8; border: none; color: var(--danger);
+      width: 30px; height: 30px; border-radius: 9px; font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+
+    .item-remove:active { background: var(--danger); color: white; transform: scale(0.9); }
+
+    .item-fields { display: flex; flex-direction: column; gap: 8px; }
+    .item-fields .field-input { padding: 9px 12px; font-size: 0.88rem; border-radius: 10px; }
+
+    .item-price-row {
+      display: grid; grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 8px; align-items: end;
+    }
+
+    .item-total-box {
+      background: #eef4fa; border-radius: 10px;
+      padding: 9px 12px; text-align: right;
+      border: 1.5px solid #d0dde8;
+    }
+
+    .item-total-box .label {
+      font-size: 0.6rem; color: var(--text-light);
+      text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;
+    }
+
+    .item-total-box .value {
+      font-size: 1rem; font-weight: 800; color: var(--primary); margin-top: 2px;
+    }
+
+    .item-spec-panel {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s, margin 0.3s;
+      background: linear-gradient(135deg, #f9f4ff, #f0e6fa);
+      border-radius: 12px;
+      border: 1.5px solid transparent;
+      margin-top: 0;
+    }
+
+    .item-spec-panel.open {
+      max-height: 500px;
+      padding: 12px;
+      border-color: #c8a8e0;
+      margin-top: 8px;
+    }
+
+    .item-spec-panel .spec-title {
+      font-size: 0.7rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--purple); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+      padding-bottom: 6px; border-bottom: 1px dashed #c8a8e0;
+    }
+
+    .item-spec-panel .spec-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-bottom: 8px;
+    }
+
+    .item-spec-panel .spec-field { display: flex; flex-direction: column; gap: 3px; }
+
+    .item-spec-panel .spec-field label {
+      font-size: 0.6rem; font-weight: 700;
+      color: var(--purple); text-transform: uppercase; letter-spacing: 0.4px;
+    }
+
+    .item-spec-panel .spec-field input,
+    .item-spec-panel .spec-field select,
+    .item-spec-panel .spec-field textarea {
+      background: white;
+      border: 1.5px solid #d4bce8;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .item-spec-panel .spec-field input:focus,
+    .item-spec-panel .spec-field select:focus,
+    .item-spec-panel .spec-field textarea:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(106, 61, 154, 0.1);
+    }
+
+    .item-spec-panel .spec-field textarea { resize: vertical; min-height: 50px; }
+
+    .add-item-btn {
+      width: 100%; padding: 14px;
+      background: white; border: 2px dashed var(--primary);
+      border-radius: 14px; color: var(--primary);
+      font-size: 0.9rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      cursor: pointer; font-family: inherit;
+    }
+
+    .add-item-btn:active { background: var(--primary); color: white; border-style: solid; }
+
+    /* ==================== TOTALS ==================== */
+    .totals-card {
+      background: linear-gradient(135deg, #0d4b2e, #1a6b44);
+      color: white; border-radius: var(--radius);
+      padding: 18px 16px; margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(13, 75, 46, 0.3);
+    }
+
+    .totals-card .card-title { color: #a8d5b8; border-bottom-color: rgba(168, 213, 184, 0.3); }
+    .totals-card .card-title i { color: #ffd966; }
+
+    .total-line {
+      display: flex; justify-content: space-between;
+      padding: 7px 0; font-size: 0.92rem; color: #c8e0d4;
+    }
+
+    .total-line .amount { font-weight: 700; color: white; }
+
+    .total-line.grand {
+      border-top: 1.5px solid rgba(255, 255, 255, 0.25);
+      margin-top: 8px; padding-top: 14px;
+      font-size: 1.15rem; font-weight: 800;
+    }
+
+    .total-line.grand .amount { color: #ffd966; font-size: 1.3rem; }
+
+    .gst-line, .discount-line {
+      display: flex; justify-content: space-between;
+      padding: 7px 0; font-size: 0.92rem; color: #c8e0d4;
+    }
+
+    .gst-line .amount, .discount-line .amount { font-weight: 700; color: white; }
+    .discount-line .amount { color: #ffd966; }
+
+    /* ==================== BOTTOM NAV ==================== */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white;
+      display: flex; align-items: center; justify-content: space-around;
+      padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -4px 20px rgba(0, 20, 30, 0.1);
+      z-index: 200; border-top: 1px solid var(--border);
+    }
+
+    .nav-btn {
+      background: none; border: none;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 6px 12px; border-radius: 12px;
+      cursor: pointer; color: var(--text-light);
+      font-family: inherit; min-width: 56px;
+    }
+
+    .nav-btn i { font-size: 1.15rem; }
+    .nav-btn span { font-size: 0.62rem; font-weight: 700; }
+    .nav-btn:active { transform: scale(0.92); }
+
+    .nav-btn.primary {
+      background: var(--brand-green); color: white;
+      padding: 8px 18px; border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(13, 75, 46, 0.35);
+    }
+
+    .nav-btn.danger { color: var(--danger); }
+    .nav-btn.success { color: var(--success); }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none; align-items: flex-end; justify-content: center;
+      z-index: 1000; backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-sheet, .view-sheet {
+      background: white; width: 100%; max-width: 500px;
+      max-height: 92vh; border-radius: 24px 24px 0 0;
+      display: flex; flex-direction: column;
+      animation: slideUp 0.3s ease; overflow: hidden;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-handle {
+      width: 40px; height: 4px; background: #cbdae8;
+      border-radius: 4px; margin: 10px auto 4px; flex-shrink: 0;
+    }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 20px 14px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+
+    .modal-header h2 {
+      font-size: 1.05rem; font-weight: 800; color: var(--primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .modal-header h2 i { color: var(--accent); }
+
+    .modal-close {
+      background: #f0f2f5; border: none;
+      width: 32px; height: 32px; border-radius: 10px;
+      font-size: 1.1rem; color: var(--text-light); cursor: pointer;
+    }
+
+    .modal-body, .view-body {
+      padding: 14px 20px 24px;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+
+    .view-body { background: #f0f2f5; padding: 16px; }
+
+    /* ==================== ACTIONS ==================== */
+    .action-stack { display: flex; flex-direction: column; gap: 10px; }
+
+    .action-btn {
+      width: 100%; padding: 14px;
+      border: none; border-radius: 14px;
+      font-size: 0.9rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+    }
+
+    .action-btn:active { transform: scale(0.97); }
+
+    .action-btn-order {
+      background: linear-gradient(135deg, #6a3d9a, #8e5fc9);
+      color: white;
+      box-shadow: 0 6px 18px rgba(106, 61, 154, 0.35);
+    }
+
+    .action-btn-challan {
+      background: linear-gradient(135deg, #b13e3e, #d45a5a);
+      color: white;
+      box-shadow: 0 6px 18px rgba(177, 62, 62, 0.35);
+    }
+
+    .action-btn-pdf {
+      background: linear-gradient(135deg, #0d4b2e, #1a6b44);
+      color: white;
+      box-shadow: 0 6px 18px rgba(13, 75, 46, 0.35);
+    }
+
+    /* ==================== HISTORY ==================== */
+    .history-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px; border: 1.5px solid var(--border);
+      border-radius: 14px; margin-bottom: 10px;
+      background: #fbfdff; gap: 10px; cursor: pointer;
+    }
+
+    .history-item:active { background: #f0f6ff; transform: scale(0.98); }
+    .history-item.order-item { border-left: 4px solid var(--purple); }
+    .history-item.challan-item { border-left: 4px solid var(--danger); }
+    .history-item.quote-item { border-left: 4px solid var(--primary); }
+
+    .history-info { flex: 1; min-width: 0; }
+
+    .history-info .ref {
+      font-weight: 800; color: var(--primary); font-size: 0.9rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .history-info .meta { font-size: 0.72rem; color: var(--text-light); margin-top: 4px; }
+    .history-info .total { font-size: 0.82rem; color: var(--success); font-weight: 700; margin-top: 4px; }
+    .history-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+
+    .doc-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.6rem; font-weight: 800;
+      padding: 3px 8px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .doc-badge.quote { background: #e6f0fa; color: #1e3c5c; }
+    .doc-badge.order { background: #f0e6fa; color: #6a3d9a; }
+    .doc-badge.challan { background: #fde8e8; color: #b13e3e; }
+
+    .mini-btn {
+      border: none; padding: 9px 12px; border-radius: 10px;
+      font-size: 0.75rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 5px; font-family: inherit;
+    }
+
+    .mini-btn:active { transform: scale(0.93); }
+    .mini-btn.view { background: #e6f0fa; color: var(--primary); }
+    .mini-btn.del { background: #fde8e8; color: var(--danger); }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); }
+    .empty-state i { font-size: 3rem; color: #cbdae8; margin-bottom: 14px; display: block; }
+
+    /* ==================== VIEW ACTIONS ==================== */
+    .view-actions {
+      display: flex; gap: 8px;
+      padding: 12px 20px; border-top: 1px solid var(--border);
+      background: white; flex-shrink: 0;
+    }
+
+    .btn-full {
+      flex: 1; padding: 12px; border: none;
+      border-radius: 12px; font-weight: 700;
+      font-size: 0.85rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-family: inherit;
+    }
+
+    .btn-full:active { transform: scale(0.97); }
+    .btn-load { background: var(--brand-green); color: white; }
+    .btn-pdf-view { background: var(--success); color: white; }
+
+    /* ==================== TOAST ==================== */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      background: var(--brand-green); color: white;
+      padding: 12px 22px; border-radius: 30px;
+      font-weight: 700; font-size: 0.85rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      opacity: 0; transition: all 0.3s;
+      z-index: 2000; pointer-events: none;
+      display: flex; align-items: center; gap: 8px;
+      max-width: 90%;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast i { color: #ffd966; }
+    .toast.error { background: var(--danger); }
+    .toast.error i { color: #ffd0d0; }
+
+    /* ==================== ANIMATIONS ==================== */
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== BILL PREVIEW ==================== */
+    .bill-preview {
+      background: white; border-radius: 16px;
+      padding: 20px; box-shadow: var(--shadow); font-size: 0.85rem;
+    }
+
+    .bill-preview .bp-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      border-bottom: 3px solid var(--brand-green);
+      padding-bottom: 14px; margin-bottom: 16px; gap: 12px;
+    }
+
+    .bill-preview.order-mode .bp-header { border-bottom-color: var(--purple); }
+    .bill-preview.challan-mode .bp-header { border-bottom-color: var(--danger); }
+
+    .bill-preview .bp-brand { display: flex; align-items: center; gap: 12px; flex: 1; }
+
+    .bill-preview .bp-brand .bp-logo-img {
+      width: 70px; height: 70px;
+      object-fit: contain; border-radius: 50%;
+      background: white; padding: 2px;
+      box-shadow: 0 3px 10px rgba(13, 75, 46, 0.2); flex-shrink: 0;
+    }
+
+    .bill-preview .bp-brand-info h1 {
+      font-size: 1.35rem; color: var(--brand-green);
+      font-weight: 800; letter-spacing: -0.3px; line-height: 1.1;
+    }
+
+    .bill-preview.order-mode .bp-brand-info h1 { color: var(--purple); }
+    .bill-preview.challan-mode .bp-brand-info h1 { color: var(--danger); }
+
+    .bill-preview .bp-brand-info .bp-tagline {
+      font-size: 0.6rem; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .bill-preview .bp-brand-info .bp-address {
+      font-size: 0.68rem; color: var(--text); margin-top: 6px; line-height: 1.4;
+    }
+
+    .bill-preview .bp-brand-info .bp-address i {
+      color: var(--accent); margin-right: 4px; font-size: 0.65rem;
+    }
+
+    .bill-preview .bp-brand-info .bp-contact {
+      font-size: 0.7rem; color: var(--brand-green); font-weight: 700; margin-top: 3px;
+    }
+
+    .bill-preview.order-mode .bp-brand-info .bp-contact { color: var(--purple); }
+    .bill-preview.challan-mode .bp-brand-info .bp-contact { color: var(--danger); }
+
+    .bill-preview .bp-brand-info .bp-contact i {
+      color: var(--accent); margin-right: 4px;
+    }
+
+    .bill-preview .bp-title { text-align: right; flex-shrink: 0; }
+
+    .bill-preview .bp-title h2 {
+      font-size: 1.05rem; color: var(--brand-green);
+      text-transform: uppercase; letter-spacing: 2px; font-weight: 700;
+    }
+
+    .bill-preview.order-mode .bp-title h2 { color: var(--purple); }
+    .bill-preview.challan-mode .bp-title h2 { color: var(--danger); }
+
+    .bill-preview .bp-title .bp-ref {
+      font-size: 0.72rem; background: #e6f5ee;
+      padding: 4px 10px; border-radius: 20px;
+      display: inline-block; margin-top: 6px;
+      color: var(--brand-green); font-weight: 700;
+      border: 1px solid #a8d5b8;
+    }
+
+    .bill-preview.order-mode .bp-title .bp-ref {
+      background: #f0e6fa; color: var(--purple); border-color: #c8a8e0;
+    }
+
+    .bill-preview.challan-mode .bp-title .bp-ref {
+      background: #fde8e8; color: var(--danger); border-color: #e0a8a8;
+    }
+
+    .bill-preview .bp-info {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 16px;
+    }
+
+    .bill-preview .bp-info-box {
+      background: #f9fcff; border: 1px solid #e2eaf2;
+      border-radius: 12px; padding: 12px;
+    }
+
+    .bill-preview .bp-info-box h4 {
+      font-size: 0.68rem; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--brand-green);
+      margin-bottom: 8px; font-weight: 700;
+      display: flex; align-items: center; gap: 5px;
+      border-bottom: 1px dashed #a8d5b8; padding-bottom: 6px;
+    }
+
+    .bill-preview.order-mode .bp-info-box h4 { color: var(--purple); border-bottom-color: #c8a8e0; }
+    .bill-preview.challan-mode .bp-info-box h4 { color: var(--danger); border-bottom-color: #e0a8a8; }
+
+    .bill-preview .bp-info-box h4 i { color: var(--accent); }
+    .bill-preview .bp-info-box p { font-size: 0.78rem; line-height: 1.6; color: var(--text); }
+    .bill-preview .bp-info-box .lbl { font-weight: 700; color: var(--text-light); }
+
+    /* ==================== TABLE ==================== */
+    .bill-preview table {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 14px; font-size: 0.78rem;
+      border-radius: 10px; overflow: hidden;
+    }
+
+    .bill-preview thead { background: var(--brand-green); color: white; }
+    .bill-preview.order-mode thead { background: var(--purple); }
+    .bill-preview.challan-mode thead { background: var(--danger); }
+
+    .bill-preview th {
+      padding: 9px 8px; text-align: left;
+      font-weight: 700; font-size: 0.68rem;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .bill-preview td {
+      padding: 9px 8px; border-bottom: 1px solid #dee9f2; color: var(--text);
+    }
+
+    .bill-preview tbody tr:nth-child(even) td { background: #f8fbff; }
+    .bill-preview .text-right { text-align: right; }
+    .bill-preview .text-center { text-align: center; }
+
+    /* ==================== TOTALS ==================== */
+    .bill-preview .bp-totals { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+
+    .bill-preview .bp-totals-box {
+      width: 240px; background: #f0faf5;
+      border-radius: 12px; padding: 12px 14px;
+      border: 1px solid #a8d5b8;
+    }
+
+    .bill-preview .bp-total-row {
+      display: flex; justify-content: space-between;
+      padding: 4px 0; font-size: 0.8rem; color: var(--brand-green);
+    }
+
+    .bill-preview .bp-total-row .amt { font-weight: 700; }
+
+    .bill-preview .bp-total-row.grand {
+      border-top: 2px solid var(--brand-green);
+      margin-top: 6px; padding-top: 8px;
+      font-weight: 800; font-size: 1rem; color: var(--text);
+    }
+
+    .bill-preview .bp-total-row.grand .amt { color: var(--brand-green); font-size: 1.1rem; }
+
+    /* ==================== PAYMENT ==================== */
+    .bill-preview .bp-payment {
+      background: linear-gradient(135deg, #f0faf5, #e6f5ee);
+      border: 1.5px solid #a8d5b8;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .bill-preview .bp-payment h4 {
+      font-size: 0.72rem; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--brand-green);
+      margin-bottom: 10px; font-weight: 800;
+      display: flex; align-items: center; gap: 6px;
+      border-bottom: 1px dashed #a8d5b8; padding-bottom: 6px;
+    }
+
+    .bill-preview .bp-payment-row {
+      display: flex; justify-content: space-between;
+      padding: 5px 0; font-size: 0.82rem; color: var(--text);
+    }
+
+    .bill-preview .bp-payment-row.advance { color: var(--success); font-weight: 700; }
+    .bill-preview .bp-payment-row.remaining {
+      color: var(--danger); font-weight: 800;
+      border-top: 1.5px solid #a8d5b8;
+      margin-top: 6px; padding-top: 8px; font-size: 0.95rem;
+    }
+
+    /* ==================== NOTE ==================== */
+    .bill-preview .bp-note {
+      background: #fffaf0;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+
+    .bill-preview .bp-note strong {
+      display: block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    /* ==================== TERMS (Only in QUOTATION) ==================== */
+    .bill-preview .bp-terms {
+      font-size: 0.58rem;
+      color: #555;
+      border-top: 1px dashed #b8cfdf;
+      padding-top: 10px;
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .bill-preview .bp-terms h5 {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: var(--brand-green);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+      font-weight: 800;
+    }
+
+    .bill-preview .bp-terms ol {
+      list-style: none;
+      counter-reset: term-counter;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .bill-preview .bp-terms ol li {
+      counter-increment: term-counter;
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 3px;
+      text-align: justify;
+    }
+
+    .bill-preview .bp-terms ol li::before {
+      content: counter(term-counter) ".";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: 800;
+      color: var(--accent);
+      font-size: 0.58rem;
+    }
+
+    .bill-preview .bp-terms ol li strong {
+      color: #333;
+      font-weight: 800;
+    }
+
+    /* ==================== SIGNATURE ==================== */
+    .bill-preview .bp-signature {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid #d9e2ec;
+    }
+
+    .bill-preview .bp-sign-block { text-align: center; flex: 1; }
+    .bill-preview .bp-sign-block.right { text-align: right; }
+
+    .bill-preview .bp-sign-image-wrap {
+      width: 140px; height: 65px;
+      margin: 0 auto 6px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+
+    .bill-preview .bp-sign-block.right .bp-sign-image-wrap {
+      margin-left: auto; margin-right: 0;
+    }
+
+    .bill-preview .bp-sign-image {
+      max-width: 100%; max-height: 100%;
+      object-fit: contain; display: block;
+    }
+
+    .bill-preview .bp-sign-line {
+      width: 160px; border-bottom: 1.5px solid #a0b8cc;
+      margin: 0 auto 6px;
+    }
+
+    .bill-preview .bp-sign-block.right .bp-sign-line {
+      margin-left: auto; margin-right: 0;
+    }
+
+    .bill-preview .bp-sign-name { font-size: 0.78rem; font-weight: 800; color: var(--brand-green); }
+    .bill-preview.order-mode .bp-sign-name { color: var(--purple); }
+    .bill-preview.challan-mode .bp-sign-name { color: var(--danger); }
+    .bill-preview .bp-sign-role { font-size: 0.65rem; color: var(--text-light); margin-top: 2px; }
+
+    /* ==================== FOOTER ==================== */
+    .bill-preview .bp-thanks {
+      text-align: center; margin-top: 14px;
+      font-size: 0.72rem; color: var(--text-light); font-style: italic;
+    }
+
+    .bill-preview .bp-thanks i { color: var(--accent); font-style: normal; }
+
+    /* ==================== STATUS BANNER ==================== */
+    .status-banner {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .status-banner.order {
+      background: #f0e6fa; color: var(--purple);
+      border: 1.5px solid #c8a8e0;
+    }
+
+    .status-banner.challan {
+      background: #fde8e8; color: var(--danger);
+      border: 1.5px solid #e0a8a8;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (min-width: 600px) {
+      .app-body { max-width: 560px; margin: 0 auto; width: 100%; }
+      .bottom-nav {
+        max-width: 560px; left: 50%; transform: translateX(-50%);
+        border-radius: 20px 20px 0 0;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+      }
+      .modal-sheet, .view-sheet { border-radius: 24px; margin-bottom: 40px; }
+      .modal-overlay { align-items: center; }
+    }
+
+    @media print {
+      body { background: white; overflow: visible; height: auto; }
+      .app-header, .bottom-nav, .add-item-btn, .item-remove,
+      .toggle-row, .settings-panel, .view-actions { display: none !important; }
+      .app-body { overflow: visible; padding: 0; height: auto; }
+      .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== APP HEADER ==================== -->
+<header class="app-header">
+  <div class="brand">
+    <img src="logo.png" alt="Sameer Bags" class="logo-img" onerror="this.style.display='none'">
+    <div>
+      <h1>Sameer Bags</h1>
+      <small>Printed Shopping Bags Manufacturer</small>
+      <span class="brand-contact"><i class="fas fa-phone"></i> 8485861122 / 8485868604</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="historyBtn" title="History"><i class="fas fa-history"></i></button>
+    <button class="icon-btn" id="pdfBtn" title="PDF"><i class="fas fa-file-pdf"></i></button>
+  </div>
+</header>
+
+<!-- ==================== MAIN SCROLL AREA ==================== -->
+<main class="app-body" id="appBody">
+
+  <div id="statusBanner"></div>
+
+  <!-- DOC TYPE SELECTOR -->
+  <div class="card fade-in" style="padding: 12px;">
+    <div class="card-title" style="margin-bottom: 10px;">
+      <i class="fas fa-file-alt"></i> Document Type
+    </div>
+    <div class="doc-type-tabs" id="docTypeTabs">
+      <button class="doc-tab active" data-doctype="quote">
+        <i class="fas fa-file-invoice"></i> Quotation
+      </button>
+      <button class="doc-tab" data-doctype="order">
+        <i class="fas fa-file-invoice-dollar"></i> Sale Invoice
+      </button>
+      <button class="doc-tab" data-doctype="challan">
+        <i class="fas fa-truck"></i> Challan
+      </button>
+    </div>
+  </div>
+
+  <!-- QUOTE INFO -->
+  <div class="card fade-in">
+    <div class="card-title">
+      <i class="fas fa-file-invoice"></i> <span id="docTitle">Quotation Details</span>
+      <span class="badge" id="modeBadge">BILL</span>
+    </div>
+    <div class="field-row">
+      <label>Reference Number</label>
+      <input type="text" class="field-input" id="quoteRef" placeholder="SB-2025-001" value="SB-2025-001">
+    </div>
+    <div class="field-grid-2">
+      <div class="field-row">
+        <label>Date</label>
+        <input type="date" class="field-input" id="quoteDate">
+      </div>
+      <div class="field-row">
+        <label>Valid Until</label>
+        <input type="date" class="field-input" id="validUntil">
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER -->
+  <div class="card fade-in">
+    <div class="card-title">
+      <i class="fas fa-user-tie"></i> Customer Details
+    </div>
+    <div class="field-row">
+      <label>Customer Name</label>
+      <input type="text" class="field-input" id="customerName" placeholder="Mr. Rohan Mehta">
+    </div>
+    <div class="field-row">
+      <label>Company</label>
+      <input type="text" class="field-input" id="customerCompany" placeholder="TravelCraft Pvt. Ltd.">
+    </div>
+    <div class="field-grid-2">
+      <div class="field-row">
+        <label>Email</label>
+        <input type="email" class="field-input" id="customerEmail" placeholder="rohan@example.com">
+      </div>
+      <div class="field-row">
+        <label>Phone</label>
+        <input type="tel" class="field-input" id="customerPhone" placeholder="+91 98765 43210">
+      </div>
+    </div>
+  </div>
+
+  <!-- SALE INVOICE PAYMENT -->
+  <div class="card fade-in" id="paymentCard" style="display: none;">
+    <div class="card-title">
+      <i class="fas fa-rupee-sign"></i> Payment Details
+    </div>
+    <div class="field-grid-2">
+      <div class="field-row">
+        <label>Advance Amount (₹)</label>
+        <input type="number" class="field-input" id="orderAdvance" placeholder="0" min="0" step="0.01" value="0">
+      </div>
+      <div class="field-row">
+        <label>Remaining Amount (₹)</label>
+        <input type="text" class="field-input" id="orderRemaining" readonly style="background:#fde8e8; color:#b13e3e; font-weight:800;">
+      </div>
+    </div>
+    <div class="field-grid-2" style="margin-top: 10px;">
+      <div class="field-row">
+        <label>Delivery Date</label>
+        <input type="date" class="field-input" id="orderDeliveryDate">
+      </div>
+      <div class="field-row">
+        <label>Payment Mode</label>
+        <select class="field-select" id="orderPaymentMode">
+          <option value="">-- Select --</option>
+          <option value="Cash">Cash</option>
+          <option value="UPI">UPI</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Cheque">Cheque</option>
+          <option value="Credit">Credit</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- GST TOGGLE -->
+  <div class="card fade-in" style="padding: 12px;">
+    <div class="toggle-row" id="gstToggleRow">
+      <div class="toggle-info">
+        <div class="toggle-icon" id="gstIcon"><i class="fas fa-receipt"></i></div>
+        <div class="toggle-text">
+          <h4 id="gstTitle">GST Bill</h4>
+          <p id="gstSubtitle">Tap to enable GST (18%)</p>
+        </div>
+      </div>
+      <div class="toggle-switch" id="gstSwitch"></div>
+    </div>
+    <div class="settings-panel" id="gstSettings">
+      <label style="font-size:0.72rem; font-weight:700; color:var(--text-light); text-transform:uppercase; letter-spacing:0.5px;">GST Rate</label>
+      <div class="percent-grid">
+        <div class="percent-chip" data-gst="5">5%</div>
+        <div class="percent-chip" data-gst="12">12%</div>
+        <div class="percent-chip selected" data-gst="18">18%</div>
+        <div class="percent-chip" data-gst="28">28%</div>
+      </div>
+      <div class="field-row" style="margin-top:12px; margin-bottom:0;">
+        <label>Custom GST %</label>
+        <input type="number" class="field-input" id="gstCustom" placeholder="18" min="0" max="100" step="0.5" value="18">
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCOUNT TOGGLE -->
+  <div class="card fade-in" style="padding: 12px;">
+    <div class="toggle-row" id="discountToggleRow">
+      <div class="toggle-info">
+        <div class="toggle-icon" id="discountIcon"><i class="fas fa-percent"></i></div>
+        <div class="toggle-text">
+          <h4 id="discountTitle">Discount</h4>
+          <p id="discountSubtitle">Tap to enable discount</p>
+        </div>
+      </div>
+      <div class="toggle-switch" id="discountSwitch"></div>
+    </div>
+    <div class="settings-panel" id="discountSettings">
+      <label style="font-size:0.72rem; font-weight:700; color:var(--text-light); text-transform:uppercase; letter-spacing:0.5px;">Discount Rate</label>
+      <div class="percent-grid">
+        <div class="percent-chip discount-chip" data-disc="5">5%</div>
+        <div class="percent-chip discount-chip" data-disc="10">10%</div>
+        <div class="percent-chip discount-chip selected" data-disc="15">15%</div>
+        <div class="percent-chip discount-chip" data-disc="20">20%</div>
+      </div>
+      <div class="field-row" style="margin-top:12px; margin-bottom:0;">
+        <label>Custom Discount %</label>
+        <input type="number" class="field-input" id="discountCustom" placeholder="15" min="0" max="100" step="0.5" value="15">
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEMS -->
+  <div class="card fade-in">
+    <div class="card-title">
+      <i class="fas fa-box-open"></i> Items
+      <span class="badge" id="itemCount">0</span>
+    </div>
+    <div id="itemsContainer"></div>
+    <button class="add-item-btn" id="addItemBtn">
+      <i class="fas fa-plus-circle"></i> Add Item
+    </button>
+  </div>
+
+  <!-- TOTALS -->
+  <div class="totals-card fade-in">
+    <div class="card-title">
+      <i class="fas fa-calculator"></i> Summary
+    </div>
+    <div class="total-line">
+      <span>Subtotal</span>
+      <span class="amount" id="subtotalDisplay">₹ 0.00</span>
+    </div>
+    <div class="gst-line" id="gstLine" style="display:none;">
+      <span id="gstLabel">GST (18%)</span>
+      <span class="amount" id="gstAmountDisplay">₹ 0.00</span>
+    </div>
+    <div class="discount-line" id="discountLine" style="display:none;">
+      <span id="discountLabel">Discount (15%)</span>
+      <span class="amount" id="discountDisplay">– ₹ 0.00</span>
+    </div>
+    <div class="total-line grand">
+      <span>Grand Total</span>
+      <span class="amount" id="grandTotalDisplay">₹ 0.00</span>
+    </div>
+  </div>
+
+  <!-- TERMS (App Editor) -->
+  <div class="card fade-in" id="termsCard">
+    <div class="card-title">
+      <i class="fas fa-file-contract"></i> Terms & Conditions
+      <span class="badge" id="termsCount">10</span>
+    </div>
+    <div class="terms-list-app" id="termsContainer">
+      <!-- Terms will be injected by JS -->
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="card fade-in">
+    <div class="card-title">
+      <i class="fas fa-exchange-alt"></i> Actions
+    </div>
+    <div class="action-stack">
+      <button class="action-btn action-btn-order" id="convertToOrderBtn">
+        <i class="fas fa-file-invoice-dollar"></i> Convert to Sale Invoice
+      </button>
+      <button class="action-btn action-btn-challan" id="convertToChallanBtn">
+        <i class="fas fa-truck"></i> Convert to Challan
+      </button>
+      <button class="action-btn action-btn-pdf" id="downloadPdfBtn">
+        <i class="fas fa-file-pdf"></i> Download PDF
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<!-- ==================== BOTTOM NAV ==================== -->
+<nav class="bottom-nav">
+  <button class="nav-btn danger" id="clearAllBtn">
+    <i class="fas fa-trash-alt"></i>
+    <span>Clear</span>
+  </button>
+  <button class="nav-btn" id="newBtn">
+    <i class="fas fa-file-alt"></i>
+    <span>New</span>
+  </button>
+  <button class="nav-btn primary" id="saveBtn">
+    <i class="fas fa-save"></i>
+    <span>Save</span>
+  </button>
+  <button class="nav-btn success" id="backupBtn">
+    <i class="fas fa-download"></i>
+    <span>Backup</span>
+  </button>
+  <button class="nav-btn" id="restoreBtn">
+    <i class="fas fa-upload"></i>
+    <span>Restore</span>
+  </button>
+</nav>
+
+<!-- ==================== HISTORY MODAL ==================== -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2><i class="fas fa-history"></i> Saved Documents</h2>
+      <button class="modal-close" id="closeHistoryBtn">&times;</button>
+    </div>
+    <div class="modal-body" id="historyList"></div>
+  </div>
+</div>
+
+<!-- ==================== VIEW MODAL ==================== -->
+<div class="modal-overlay" id="viewModal">
+  <div class="view-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2><i class="fas fa-eye"></i> Document Preview</h2>
+      <button class="modal-close" id="closeViewBtn">&times;</button>
+    </div>
+    <div class="view-body" id="viewBody"></div>
+    <div class="view-actions">
+      <button class="btn-full btn-load" id="loadBillBtn">
+        <i class="fas fa-folder-open"></i> Load & Edit
+      </button>
+      <button class="btn-full btn-pdf-view" id="pdfViewBtn">
+        <i class="fas fa-file-pdf"></i> Download PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="restoreFileInput" accept=".json" style="display: none;">
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastMessage">Saved</span>
+</div>
+
+<script>
+/* ============================================================
+   SAMEER BAGS — COMPLETE APPLICATION
+   Quotation · Sale Invoice · Challan
+   Terms & Conditions ONLY in Quotation
+   Specs only in App (SPEC toggle), never in PDF
+   ============================================================ */
+
+(function() {
+  'use strict';
+
+  // ==================== BRAND INFO ====================
+  const LOGO_IMAGE = 'logo.png';
+  const SIGNATURE_IMAGE = 'signature.png';
+  const BRAND_NAME = 'Sameer Bags';
+  const BRAND_TAGLINE = 'Printed Shopping Bags Manufacturer';
+  const BRAND_ADDRESS = 'Khandobamal, Chakan, Pune';
+  const BRAND_PHONE = '8485861122 / 8485868604';
+
+  // ==================== DEFAULT TERMS ====================
+  const DEFAULT_TERMS = [
+    '<strong>Quotation validity:</strong> This quotation is valid for 15 days from the date of issue.',
+    '<strong>Payment Terms:</strong> 50% advance with order confirmation and balance 50% before/at the time of delivery.',
+    '<strong>Delivery:</strong> Delivery time will be counted from the date of order confirmation and approval of artwork.',
+    '<strong>Artwork:</strong> Printing will be done as per the final approved artwork/design.',
+    '<strong>Colour:</strong> Slight variation in colour may occur due to printing process and material.',
+    '<strong>Quantity:</strong> Final quantity may vary by ±5% depending on production. Billing will be based on actual quantity supplied.',
+    '<strong>Taxes:</strong> GST and transportation charges will be extra, if applicable.',
+    '<strong>Cancellation:</strong> Once production has started, the order cannot be cancelled.',
+    '<strong>Damages/Shortage:</strong> Any complaint regarding shortage or damage must be informed within 24 hours of delivery.',
+    '<strong>Approval:</strong> Once the quotation/order and artwork are approved, any subsequent changes may attract additional charges.'
+  ];
+
+  // ==================== STORAGE KEYS ====================
+  const KEYS = {
+    DOCUMENTS: 'sameer_bags_documents_v12',
+    CURRENT: 'sameer_bags_current_draft_v12',
+    GST_ENABLED: 'sameer_bags_gst_enabled_v12',
+    GST_PERCENT: 'sameer_bags_gst_percent_v12',
+    DISC_ENABLED: 'sameer_bags_disc_enabled_v12',
+    DISC_PERCENT: 'sameer_bags_disc_percent_v12'
+  };
+
+  // ==================== STATE ====================
+  const AppState = {
+    docType: 'quote',
+    parentRef: null,
+    gstEnabled: false,
+    gstPercent: 18,
+    discEnabled: false,
+    discPercent: 15,
+    itemCounter: 0,
+    currentViewingBill: null
+  };
+
+  const $ = id => document.getElementById(id);
+
+  // ==================== STORAGE ====================
+  function getDocuments() {
+    try { return JSON.parse(localStorage.getItem(KEYS.DOCUMENTS) || '[]'); }
+    catch (e) { return []; }
+  }
+  function setDocuments(arr) { localStorage.setItem(KEYS.DOCUMENTS, JSON.stringify(arr)); }
+  function getGstPref() { return localStorage.getItem(KEYS.GST_ENABLED) === '1'; }
+  function saveGstPref(v) { localStorage.setItem(KEYS.GST_ENABLED, v ? '1' : '0'); }
+  function getGstPercent() { const v = parseFloat(localStorage.getItem(KEYS.GST_PERCENT)); return isNaN(v) ? 18 : v; }
+  function saveGstPercent(v) { localStorage.setItem(KEYS.GST_PERCENT, v); }
+  function getDiscPref() { return localStorage.getItem(KEYS.DISC_ENABLED) === '1'; }
+  function saveDiscPref(v) { localStorage.setItem(KEYS.DISC_ENABLED, v ? '1' : '0'); }
+  function getDiscPercent() { const v = parseFloat(localStorage.getItem(KEYS.DISC_PERCENT)); return isNaN(v) ? 15 : v; }
+  function saveDiscPercent(v) { localStorage.setItem(KEYS.DISC_PERCENT, v); }
+
+  // ==================== UTILS ====================
+  function formatCurrency(amount) {
+    const num = Number(amount) || 0;
+    return '₹ ' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function parseNum(val) { const n = parseFloat(val); return isNaN(n) ? 0 : n; }
+  function escapeHtml(str) {
+    return String(str).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function getDocTypeLabel(t) {
+    if (t === 'order') return 'Sale Invoice';
+    if (t === 'challan') return 'Challan';
+    return 'Quotation';
+  }
+  function getDocTypePrefix(t) {
+    if (t === 'order') return 'INV';
+    if (t === 'challan') return 'CHL';
+    return 'SB';
+  }
+
+  // ==================== TOAST ====================
+  let toastTimeout;
+  function showToast(msg, isError = false) {
+    const toast = $('toast');
+    $('toastMessage').textContent = msg;
+    toast.className = 'toast show' + (isError ? ' error' : '');
+    toast.querySelector('i').className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  // ==================== DOC TYPE ====================
+  function setDocType(type) {
+    AppState.docType = type;
+
+    document.querySelectorAll('.doc-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.doctype === type);
+    });
+
+    const showOrderFields = (type === 'order' || type === 'challan');
+    $('paymentCard').style.display = showOrderFields ? '' : 'none';
+
+    // Show/hide Terms & Conditions card — ONLY in Quotation
+    $('termsCard').style.display = (type === 'quote') ? '' : 'none';
+
+    $('docTitle').textContent = getDocTypeLabel(type) + ' Details';
+    updateModeBadge();
+    updateStatusBanner();
+    updateActionButtons();
+  }
+
+  function updateStatusBanner() {
+    const banner = $('statusBanner');
+    if (AppState.docType === 'order') {
+      banner.innerHTML = `
+        <div class="status-banner order">
+          <i class="fas fa-file-invoice-dollar"></i>
+          <span>SALE INVOICE${AppState.parentRef ? ' from ' + escapeHtml(AppState.parentRef) : ''}</span>
+        </div>
+      `;
+    } else if (AppState.docType === 'challan') {
+      banner.innerHTML = `
+        <div class="status-banner challan">
+          <i class="fas fa-truck"></i>
+          <span>CHALLAN${AppState.parentRef ? ' from ' + escapeHtml(AppState.parentRef) : ''}</span>
+        </div>
+      `;
+    } else {
+      banner.innerHTML = '';
+    }
+  }
+
+  function updateActionButtons() {
+    const orderBtn = $('convertToOrderBtn');
+    const challanBtn = $('convertToChallanBtn');
+
+    if (AppState.docType === 'quote') {
+      orderBtn.style.display = 'flex';
+      challanBtn.style.display = 'none';
+    } else if (AppState.docType === 'order') {
+      orderBtn.style.display = 'none';
+      challanBtn.style.display = 'flex';
+    } else {
+      orderBtn.style.display = 'none';
+      challanBtn.style.display = 'none';
+    }
+  }
+
+  // ==================== TERMS EDITOR ====================
+  const termsContainer = $('termsContainer');
+  const termsCountEl = $('termsCount');
+
+  function renderTermsEditor(terms) {
+    const list = terms && terms.length ? terms : DEFAULT_TERMS;
+    termsContainer.innerHTML = '';
+    termsCountEl.textContent = list.length;
+
+    list.forEach((term, i) => {
+      const div = document.createElement('div');
+      div.className = 'term-item';
+      div.innerHTML = `
+        <span class="term-num">${i + 1}</span>
+        <textarea class="term-input" rows="2" placeholder="Enter term ${i + 1}...">${escapeHtml(stripHtml(term))}</textarea>
+      `;
+      termsContainer.appendChild(div);
+
+      const textarea = div.querySelector('.term-input');
+      textarea.addEventListener('input', () => {
+        autoResizeTextarea(textarea);
+        saveDraft();
+      });
+      autoResizeTextarea(textarea);
+    });
+  }
+
+  function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+  }
+
+  function stripHtml(str) {
+    return String(str).replace(/<[^>]*>/g, '');
+  }
+
+  function getTermsFromEditor() {
+    const terms = [];
+    termsContainer.querySelectorAll('.term-input').forEach(inp => {
+      const val = inp.value.trim();
+      if (val) terms.push(val);
+    });
+    return terms.length ? terms : DEFAULT_TERMS;
+  }
+
+  // ==================== ITEMS ====================
+  const itemsContainer = $('itemsContainer');
+  const itemCountEl = $('itemCount');
+
+  function createItemCard(item = {}) {
+    const id = 'item_' + (++AppState.itemCounter);
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.dataset.itemId = id;
+
+    const hasSpec = item.spec && (
+      item.spec.size || item.spec.bagType || item.spec.bagColor ||
+      item.spec.printColor || item.spec.note
+    );
+
+    if (hasSpec) div.classList.add('has-spec');
+
+    const spec = item.spec || {};
+
+    div.innerHTML = `
+      <div class="item-header">
+        <span class="item-number">ITEM ${AppState.itemCounter}</span>
+        <div class="item-header-actions">
+          <button class="item-spec-toggle ${hasSpec ? 'has-data active' : ''}" title="Item Specification">
+            <i class="fas fa-clipboard-list"></i> SPEC
+          </button>
+          <button class="item-remove" title="Remove"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <div class="item-fields">
+        <input type="text" class="field-input item-desc" placeholder="Item description..." value="${escapeHtml(item.desc || '')}">
+        <div class="item-price-row">
+          <div class="field-row" style="margin-bottom:0;">
+            <label>Qty</label>
+            <input type="number" class="field-input item-qty" value="${item.qty || 1}" min="0" step="1">
+          </div>
+          <div class="field-row" style="margin-bottom:0;">
+            <label>Price (₹)</label>
+            <input type="number" class="field-input item-price" value="${item.price || 0}" min="0" step="0.01">
+          </div>
+          <div class="item-total-box">
+            <div class="label">Total</div>
+            <div class="value item-total">₹ 0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-spec-panel ${hasSpec ? 'open' : ''}">
+        <div class="spec-title">
+          <i class="fas fa-clipboard-list"></i> Specifications
+        </div>
+        <div class="spec-grid">
+          <div class="spec-field">
+            <label>Size</label>
+            <input type="text" class="spec-input spec-size" placeholder="12x16 inch" value="${escapeHtml(spec.size || '')}">
+          </div>
+          <div class="spec-field">
+            <label>Bag Type</label>
+            <select class="spec-input spec-bagtype">
+              <option value="">-- Select --</option>
+              <option value="D-Cut Bag"${spec.bagType === 'D-Cut Bag' ? ' selected' : ''}>D-Cut Bag</option>
+              <option value="U-Cut Bag"${spec.bagType === 'U-Cut Bag' ? ' selected' : ''}>U-Cut Bag</option>
+              <option value="Loop Handle Bag"${spec.bagType === 'Loop Handle Bag' ? ' selected' : ''}>Loop Handle Bag</option>
+              <option value="Dhoop Bag"${spec.bagType === 'Dhoop Bag' ? ' selected' : ''}>Dhoop Bag</option>
+              <option value="W-Cut Bag"${spec.bagType === 'W-Cut Bag' ? ' selected' : ''}>W-Cut Bag</option>
+              <option value="Bopp Bag"${spec.bagType === 'Bopp Bag' ? ' selected' : ''}>Bopp Bag</option>
+              <option value="Non-Woven Bag"${spec.bagType === 'Non-Woven Bag' ? ' selected' : ''}>Non-Woven Bag</option>
+              <option value="Paper Bag"${spec.bagType === 'Paper Bag' ? ' selected' : ''}>Paper Bag</option>
+              <option value="Other"${spec.bagType === 'Other' ? ' selected' : ''}>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="spec-grid">
+          <div class="spec-field">
+            <label>Bag Color</label>
+            <input type="text" class="spec-input spec-bagcolor" placeholder="White, Green..." value="${escapeHtml(spec.bagColor || '')}">
+          </div>
+          <div class="spec-field">
+            <label>Print Color</label>
+            <input type="text" class="spec-input spec-printcolor" placeholder="Black, Red..." value="${escapeHtml(spec.printColor || '')}">
+          </div>
+        </div>
+        <div class="spec-field" style="margin-top:8px;">
+          <label>Item Note</label>
+          <textarea class="spec-input spec-note" placeholder="Special instructions for this item...">${escapeHtml(spec.note || '')}</textarea>
+        </div>
+      </div>
+    `;
+
+    const specToggle = div.querySelector('.item-spec-toggle');
+    const specPanel = div.querySelector('.item-spec-panel');
+
+    specToggle.addEventListener('click', () => {
+      const isOpen = specPanel.classList.toggle('open');
+      specToggle.classList.toggle('active', isOpen);
+    });
+
+    div.querySelector('.item-remove').addEventListener('click', function() {
+      div.style.transition = 'all 0.2s';
+      div.style.opacity = '0';
+      div.style.transform = 'translateX(-20px)';
+      setTimeout(() => {
+        div.remove();
+        updateItemNumbers();
+        recalculate();
+        saveDraft();
+      }, 200);
+    });
+
+    div.querySelectorAll('input, select, textarea').forEach(input => {
+      input.addEventListener('input', () => {
+        recalculate();
+        saveDraft();
+        updateSpecIndicator(div);
+      });
+      input.addEventListener('change', () => {
+        recalculate();
+        saveDraft();
+        updateSpecIndicator(div);
+      });
+    });
+
+    return div;
+  }
+
+  function updateSpecIndicator(itemCard) {
+    const size = itemCard.querySelector('.spec-size')?.value.trim() || '';
+    const bagType = itemCard.querySelector('.spec-bagtype')?.value || '';
+    const bagColor = itemCard.querySelector('.spec-bagcolor')?.value.trim() || '';
+    const printColor = itemCard.querySelector('.spec-printcolor')?.value.trim() || '';
+    const note = itemCard.querySelector('.spec-note')?.value.trim() || '';
+
+    const hasData = size || bagType || bagColor || printColor || note;
+    const toggle = itemCard.querySelector('.item-spec-toggle');
+
+    toggle.classList.toggle('has-data', !!hasData);
+    itemCard.classList.toggle('has-spec', !!hasData);
+  }
+
+  function addItem(item = {}) {
+    itemsContainer.appendChild(createItemCard(item));
+    updateItemNumbers();
+  }
+
+  function updateItemNumbers() {
+    const cards = itemsContainer.querySelectorAll('.item-card');
+    itemCountEl.textContent = cards.length;
+    cards.forEach((card, i) => {
+      const n = card.querySelector('.item-number');
+      if (n) n.textContent = 'ITEM ' + (i + 1);
+    });
+  }
+
+  // ==================== RECALCULATE ====================
+  function recalculate() {
+    let subtotal = 0;
+    itemsContainer.querySelectorAll('.item-card').forEach(card => {
+      const qty = parseNum(card.querySelector('.item-qty').value);
+      const price = parseNum(card.querySelector('.item-price').value);
+      const total = qty * price;
+      card.querySelector('.item-total').textContent = formatCurrency(total);
+      subtotal += total;
+    });
+
+    $('subtotalDisplay').textContent = formatCurrency(subtotal);
+
+    let discAmt = 0;
+    if (AppState.discEnabled) {
+      discAmt = subtotal * (AppState.discPercent / 100);
+      $('discountLabel').textContent = `Discount (${AppState.discPercent}%)`;
+      $('discountDisplay').textContent = '– ' + formatCurrency(discAmt);
+      $('discountLine').style.display = 'flex';
+    } else {
+      $('discountLine').style.display = 'none';
+    }
+
+    let gstAmount = 0;
+    if (AppState.gstEnabled) {
+      const taxable = subtotal - discAmt;
+      gstAmount = taxable * (AppState.gstPercent / 100);
+      $('gstLabel').textContent = `GST (${AppState.gstPercent}%)`;
+      $('gstAmountDisplay').textContent = formatCurrency(gstAmount);
+      $('gstLine').style.display = 'flex';
+    } else {
+      $('gstLine').style.display = 'none';
+    }
+
+    const grandTotal = subtotal - discAmt + gstAmount;
+    $('grandTotalDisplay').textContent = formatCurrency(grandTotal);
+
+    if (AppState.docType === 'order' || AppState.docType === 'challan') {
+      updateRemaining();
+    }
+
+    return { subtotal, gstAmount, discAmt, grandTotal };
+  }
+
+  function updateRemaining() {
+    const totals = recalculateTotalsOnly();
+    const advance = parseNum($('orderAdvance').value);
+    const remaining = Math.max(0, totals.grandTotal - advance);
+    $('orderRemaining').value = formatCurrency(remaining);
+  }
+
+  function recalculateTotalsOnly() {
+    let subtotal = 0;
+    itemsContainer.querySelectorAll('.item-card').forEach(card => {
+      const qty = parseNum(card.querySelector('.item-qty').value);
+      const price = parseNum(card.querySelector('.item-price').value);
+      subtotal += qty * price;
+    });
+
+    let discAmt = 0;
+    if (AppState.discEnabled) discAmt = subtotal * (AppState.discPercent / 100);
+
+    let gstAmount = 0;
+    if (AppState.gstEnabled) gstAmount = (subtotal - discAmt) * (AppState.gstPercent / 100);
+
+    return { subtotal, gstAmount, discAmt, grandTotal: subtotal - discAmt + gstAmount };
+  }
+
+  // ==================== GST/DISCOUNT VISUALS ====================
+  function applyGstVisual() {
+    const row = $('gstToggleRow');
+    const settings = $('gstSettings');
+    if (AppState.gstEnabled) {
+      row.classList.add('active');
+      settings.classList.add('open');
+      $('gstIcon').innerHTML = '<i class="fas fa-check-circle"></i>';
+      $('gstTitle').textContent = 'GST Enabled';
+      $('gstSubtitle').textContent = AppState.gstPercent + '% GST will be applied';
+    } else {
+      row.classList.remove('active');
+      settings.classList.remove('open');
+      $('gstIcon').innerHTML = '<i class="fas fa-receipt"></i>';
+      $('gstTitle').textContent = 'GST Bill';
+      $('gstSubtitle').textContent = 'Tap to enable GST';
+    }
+    updateModeBadge();
+  }
+
+  function applyDiscVisual() {
+    const row = $('discountToggleRow');
+    const settings = $('discountSettings');
+    if (AppState.discEnabled) {
+      row.classList.add('active', 'discount-active');
+      settings.classList.add('open');
+      $('discountIcon').innerHTML = '<i class="fas fa-check-circle"></i>';
+      $('discountTitle').textContent = 'Discount Enabled';
+      $('discountSubtitle').textContent = AppState.discPercent + '% discount will be applied';
+    } else {
+      row.classList.remove('active', 'discount-active');
+      settings.classList.remove('open');
+      $('discountIcon').innerHTML = '<i class="fas fa-percent"></i>';
+      $('discountTitle').textContent = 'Discount';
+      $('discountSubtitle').textContent = 'Tap to enable discount';
+    }
+    updateModeBadge();
+  }
+
+  function updateModeBadge() {
+    const badge = $('modeBadge');
+    let mode = 'BILL';
+    if (AppState.gstEnabled && AppState.discEnabled) mode = 'GST + DISC';
+    else if (AppState.gstEnabled) mode = 'GST BILL';
+    else if (AppState.discEnabled) mode = 'DISCOUNT';
+
+    badge.textContent = mode;
+
+    if (AppState.docType === 'order') {
+      badge.style.background = '#6a3d9a';
+      badge.style.color = 'white';
+    } else if (AppState.docType === 'challan') {
+      badge.style.background = '#b13e3e';
+      badge.style.color = 'white';
+    } else {
+      badge.style.background = '#b8860b';
+      badge.style.color = 'white';
+    }
+  }
+
+  function setGstEnabled(enabled) {
+    AppState.gstEnabled = enabled;
+    saveGstPref(enabled);
+    applyGstVisual();
+    recalculate();
+    saveDraft();
+  }
+
+  function setDiscEnabled(enabled) {
+    AppState.discEnabled = enabled;
+    saveDiscPref(enabled);
+    applyDiscVisual();
+    recalculate();
+    saveDraft();
+  }
+
+  // ==================== FORM DATA ====================
+  function getFormData() {
+    const items = [];
+    itemsContainer.querySelectorAll('.item-card').forEach(card => {
+      items.push({
+        desc: card.querySelector('.item-desc').value.trim(),
+        qty: parseNum(card.querySelector('.item-qty').value),
+        price: parseNum(card.querySelector('.item-price').value),
+        spec: {
+          size: card.querySelector('.spec-size').value.trim(),
+          bagType: card.querySelector('.spec-bagtype').value,
+          bagColor: card.querySelector('.spec-bagcolor').value.trim(),
+          printColor: card.querySelector('.spec-printcolor').value.trim(),
+          note: card.querySelector('.spec-note').value.trim()
+        }
+      });
+    });
+
+    const terms = getTermsFromEditor();
+    const totals = recalculate();
+
+    return {
+      docType: AppState.docType,
+      parentRef: AppState.parentRef,
+      quoteRef: $('quoteRef').value.trim(),
+      quoteDate: $('quoteDate').value,
+      validUntil: $('validUntil').value,
+      customerName: $('customerName').value.trim(),
+      customerCompany: $('customerCompany').value.trim(),
+      customerEmail: $('customerEmail').value.trim(),
+      customerPhone: $('customerPhone').value.trim(),
+      orderAdvance: parseNum($('orderAdvance').value),
+      orderDeliveryDate: $('orderDeliveryDate').value,
+      orderPaymentMode: $('orderPaymentMode').value,
+      items: items,
+      terms: terms,
+      gstEnabled: AppState.gstEnabled,
+      gstPercent: AppState.gstPercent,
+      discEnabled: AppState.discEnabled,
+      discPercent: AppState.discPercent,
+      totals: totals,
+      savedAt: new Date().toISOString()
+    };
+  }
+
+  function setFormData(data) {
+    if (!data) return;
+
+    AppState.docType = data.docType || 'quote';
+    AppState.parentRef = data.parentRef || null;
+
+    $('quoteRef').value = data.quoteRef || '';
+    $('quoteDate').value = data.quoteDate || '';
+    $('validUntil').value = data.validUntil || '';
+    $('customerName').value = data.customerName || '';
+    $('customerCompany').value = data.customerCompany || '';
+    $('customerEmail').value = data.customerEmail || '';
+    $('customerPhone').value = data.customerPhone || '';
+    $('orderAdvance').value = data.orderAdvance || 0;
+    $('orderDeliveryDate').value = data.orderDeliveryDate || '';
+    $('orderPaymentMode').value = data.orderPaymentMode || '';
+
+    if (data.gstEnabled !== undefined) AppState.gstEnabled = data.gstEnabled;
+    if (data.gstPercent !== undefined) {
+      AppState.gstPercent = data.gstPercent;
+      $('gstCustom').value = AppState.gstPercent;
+      document.querySelectorAll('.percent-chip[data-gst]').forEach(c => {
+        c.classList.toggle('selected', parseFloat(c.dataset.gst) === AppState.gstPercent);
+      });
+    }
+
+    if (data.discEnabled !== undefined) AppState.discEnabled = data.discEnabled;
+    if (data.discPercent !== undefined) {
+      AppState.discPercent = data.discPercent;
+      $('discountCustom').value = AppState.discPercent;
+      document.querySelectorAll('.percent-chip[data-disc]').forEach(c => {
+        c.classList.toggle('selected', parseFloat(c.dataset.disc) === AppState.discPercent);
+      });
+    }
+
+    itemsContainer.innerHTML = '';
+    AppState.itemCounter = 0;
+    if (data.items && data.items.length) {
+      data.items.forEach(item => addItem(item));
+    } else {
+      addItem({ desc: '', qty: 1, price: 0, spec: {} });
+    }
+    updateItemNumbers();
+
+    renderTermsEditor(data.terms || DEFAULT_TERMS);
+
+    setDocType(AppState.docType);
+    applyGstVisual();
+    applyDiscVisual();
+    recalculate();
+  }
+
+  // ==================== DRAFT ====================
+  function saveDraft() {
+    try { localStorage.setItem(KEYS.CURRENT, JSON.stringify(getFormData())); } catch (e) {}
+  }
+
+  function loadDraft() {
+    try {
+      const saved = localStorage.getItem(KEYS.CURRENT);
+      if (saved) { setFormData(JSON.parse(saved)); return true; }
+    } catch (e) {}
+    return false;
+  }
+
+  // ==================== SAVE / NEW / CLEAR ====================
+  function saveDocument() {
+    const data = getFormData();
+    if (!data.quoteRef) { showToast('Please enter a reference number', true); return; }
+
+    const docs = getDocuments();
+    const idx = docs.findIndex(d => d.quoteRef === data.quoteRef && d.docType === data.docType);
+
+    if (idx !== -1) {
+      if (!confirm(`${getDocTypeLabel(data.docType)} "${data.quoteRef}" exists. Overwrite?`)) return;
+      docs[idx] = data;
+    } else {
+      docs.push(data);
+    }
+
+    setDocuments(docs);
+    saveDraft();
+    showToast(`${getDocTypeLabel(data.docType)} saved ✓`);
+  }
+
+  function newEntry() {
+    if (!confirm('Start a new document? Current data will be cleared.')) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    const validDate = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+    const prefix = getDocTypePrefix(AppState.docType);
+    const refNum = prefix + '-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
+
+    setFormData({
+      docType: AppState.docType,
+      parentRef: null,
+      quoteRef: refNum,
+      quoteDate: today,
+      validUntil: validDate,
+      customerName: '',
+      customerCompany: '',
+      customerEmail: '',
+      customerPhone: '',
+      orderAdvance: 0,
+      orderDeliveryDate: '',
+      orderPaymentMode: '',
+      items: [{ desc: '', qty: 1, price: 0, spec: {} }],
+      terms: DEFAULT_TERMS,
+      gstEnabled: false,
+      gstPercent: 18,
+      discEnabled: false,
+      discPercent: 15
+    });
+
+    saveDraft();
+    showToast('New ' + getDocTypeLabel(AppState.docType) + ' created');
+  }
+
+  function clearAll() {
+    if (!confirm('Delete ALL saved documents and current draft?')) return;
+    Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+    newEntry();
+    renderHistory();
+    showToast('All data cleared');
+  }
+
+  // ==================== CONVERT ====================
+  function convertToOrder() {
+    const data = getFormData();
+    if (!data.quoteRef) { showToast('Please enter a reference number', true); return; }
+    if (!data.items.length || !data.items[0].desc) {
+      showToast('Please add at least one item', true); return;
+    }
+
+    if (!confirm('Convert this Quotation to a Sale Invoice?\n\nThe quotation will be saved automatically.')) return;
+
+    saveDocumentSilent(data);
+
+    const invoiceRef = 'INV-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
+
+    const invoiceData = {
+      ...data,
+      docType: 'order',
+      parentRef: data.quoteRef,
+      quoteRef: invoiceRef,
+      orderAdvance: 0,
+      savedAt: new Date().toISOString()
+    };
+
+    setFormData(invoiceData);
+    saveDraft();
+    saveDocumentSilent(invoiceData);
+
+    showToast('Converted to Sale Invoice ✓');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function convertToChallan() {
+    const data = getFormData();
+    if (!data.quoteRef) { showToast('Please enter a reference number', true); return; }
+
+    if (!confirm('Convert this Sale Invoice to a Challan?\n\nThe sale invoice will be saved automatically.')) return;
+
+    saveDocumentSilent(data);
+
+    const challanRef = 'CHL-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
+
+    const challanData = {
+      ...data,
+      docType: 'challan',
+      parentRef: data.quoteRef,
+      quoteRef: challanRef,
+      savedAt: new Date().toISOString()
+    };
+
+    setFormData(challanData);
+    saveDraft();
+    saveDocumentSilent(challanData);
+
+    showToast('Converted to Challan ✓');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function saveDocumentSilent(data) {
+    const docs = getDocuments();
+    const idx = docs.findIndex(d => d.quoteRef === data.quoteRef && d.docType === data.docType);
+    if (idx !== -1) docs[idx] = data;
+    else docs.push(data);
+    setDocuments(docs);
+  }
+
+  // ==================== BACKUP / RESTORE ====================
+  function backupJSON() {
+    const backup = {
+      app: 'Sameer Bags Quotation System',
+      version: 12,
+      exportedAt: new Date().toISOString(),
+      documents: getDocuments(),
+      currentDraft: JSON.parse(localStorage.getItem(KEYS.CURRENT) || '{}')
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sameer-bags-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Backup downloaded ✓');
+  }
+
+  function restoreJSON(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const docs = data.documents || data.quotations;
+        if (!docs && !data.currentDraft) throw new Error('Invalid');
+
+        if (docs) {
+          const existing = getDocuments();
+          if (existing.length > 0 && !confirm('Replace all existing documents?')) return;
+          setDocuments(docs);
+        }
+
+        if (data.currentDraft) {
+          localStorage.setItem(KEYS.CURRENT, JSON.stringify(data.currentDraft));
+          setFormData(data.currentDraft);
+        } else if (docs && docs.length) {
+          setFormData(docs[0]);
+        }
+
+        renderHistory();
+        showToast('Restored successfully ✓');
+      } catch (err) {
+        showToast('Invalid backup file', true);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ==================== HISTORY ====================
+  function renderHistory() {
+    const docs = getDocuments();
+    const list = $('historyList');
+    list.innerHTML = '';
+
+    if (!docs.length) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-folder-open"></i>
+          <p style="font-weight:600;">No saved documents</p>
+          <p style="font-size:0.8rem; margin-top:6px;">Tap "Save" to store your first document</p>
+        </div>
+      `;
+      return;
+    }
+
+    const sorted = [...docs].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+
+    sorted.forEach((d, idx) => {
+      const grand = d.totals ? d.totals.grandTotal : 0;
+      const docType = d.docType || 'quote';
+      const badgeClass = docType === 'order' ? 'order' : (docType === 'challan' ? 'challan' : 'quote');
+      const itemClass = docType === 'order' ? 'order-item' : (docType === 'challan' ? 'challan-item' : 'quote-item');
+
+      const div = document.createElement('div');
+      div.className = 'history-item ' + itemClass;
+      div.innerHTML = `
+        <div class="history-info">
+          <div class="ref">
+            <span class="doc-badge ${badgeClass}">${getDocTypeLabel(docType)}</span>
+            ${escapeHtml(d.quoteRef || 'Untitled')}
+          </div>
+          <div class="meta">${escapeHtml(d.customerName || 'No customer')} · ${d.quoteDate || ''}${d.parentRef ? ' · From: ' + escapeHtml(d.parentRef) : ''}</div>
+          <div class="total">${formatCurrency(grand)}</div>
+        </div>
+        <div class="history-actions">
+          <button class="mini-btn view" data-index="${idx}"><i class="fas fa-eye"></i></button>
+          <button class="mini-btn del" data-index="${idx}"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    list.querySelectorAll('.view').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const idx = parseInt(this.dataset.index);
+        const sorted = [...getDocuments()].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+        if (sorted[idx]) openBillView(sorted[idx]);
+      });
+    });
+
+    list.querySelectorAll('.history-item').forEach((item, idx) => {
+      item.addEventListener('click', function(e) {
+        if (e.target.closest('.mini-btn')) return;
+        const sorted = [...getDocuments()].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+        if (sorted[idx]) openBillView(sorted[idx]);
+      });
+    });
+
+    list.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const idx = parseInt(this.dataset.index);
+        if (!confirm('Delete this document?')) return;
+        const docs = getDocuments();
+        const sorted = [...docs].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+        const target = sorted[idx];
+        const realIdx = docs.findIndex(x => x.quoteRef === target.quoteRef && x.savedAt === target.savedAt);
+        if (realIdx !== -1) {
+          docs.splice(realIdx, 1);
+          setDocuments(docs);
+          renderHistory();
+          showToast('Deleted');
+        }
+      });
+    });
+  }
+
+  // ==================== BILL HTML ====================
+  function buildBillHTML(data) {
+    const docType = data.docType || 'quote';
+    const items = data.items || [];
+    const totals = data.totals || { subtotal: 0, gstAmount: 0, discAmt: 0, grandTotal: 0 };
+    const terms = data.terms && data.terms.length ? data.terms : DEFAULT_TERMS;
+
+    let itemsRows = '';
+    items.forEach((item, i) => {
+      const qty = parseNum(item.qty);
+      const price = parseNum(item.price);
+      const total = qty * price;
+      itemsRows += `
+        <tr>
+          <td class="text-center">${i + 1}</td>
+          <td><strong>${escapeHtml(item.desc || '—')}</strong></td>
+          <td class="text-center">${qty}</td>
+          <td class="text-right">${formatCurrency(price)}</td>
+          <td class="text-right"><strong>${formatCurrency(total)}</strong></td>
+        </tr>
+      `;
+    });
+
+    let totalsRows = `
+      <div class="bp-total-row">
+        <span>Subtotal</span>
+        <span class="amt">${formatCurrency(totals.subtotal || 0)}</span>
+      </div>
+    `;
+
+    if (data.gstEnabled) {
+      totalsRows += `
+        <div class="bp-total-row">
+          <span>GST (${data.gstPercent}%)</span>
+          <span class="amt">${formatCurrency(totals.gstAmount || 0)}</span>
+        </div>
+      `;
+    }
+
+    if (data.discEnabled) {
+      totalsRows += `
+        <div class="bp-total-row">
+          <span>Discount (${data.discPercent}%)</span>
+          <span class="amt">– ${formatCurrency(totals.discAmt || 0)}</span>
+        </div>
+      `;
+    }
+
+    totalsRows += `
+      <div class="bp-total-row grand">
+        <span>Grand Total</span>
+        <span class="amt">${formatCurrency(totals.grandTotal || 0)}</span>
+      </div>
+    `;
+
+    const modeLabel = data.gstEnabled ? 'GST BILL' : (data.discEnabled ? 'DISCOUNT BILL' : 'BILL');
+
+    // ============== TERMS — ONLY IN QUOTATION ==============
+    let termsHTML = '';
+    if (docType === 'quote') {
+      const termsList = terms.map((t) => {
+        const hasHtml = /<strong>|<b>/.test(t);
+        const termText = hasHtml ? t : escapeHtml(t);
+        return `<li>${termText}</li>`;
+      }).join('');
+
+      termsHTML = `
+        <div class="bp-terms">
+          <h5><i class="fas fa-file-contract"></i> Terms & Conditions</h5>
+          <ol>${termsList}</ol>
+        </div>
+      `;
+    }
+
+    const docTitle = docType === 'order' ? 'SALE INVOICE' : (docType === 'challan' ? 'DELIVERY CHALLAN' : 'QUOTATION');
+    const billModeClass = docType === 'order' ? 'order-mode' : (docType === 'challan' ? 'challan-mode' : '');
+
+    let paymentHTML = '';
+    if (docType === 'order' || docType === 'challan') {
+      const advance = parseNum(data.orderAdvance);
+      const remaining = parseNum(totals.grandTotal) - advance;
+      paymentHTML = `
+        <div class="bp-payment">
+          <h4><i class="fas fa-rupee-sign"></i> Payment Details</h4>
+          <div class="bp-payment-row">
+            <span>Grand Total</span>
+            <span>${formatCurrency(totals.grandTotal)}</span>
+          </div>
+          <div class="bp-payment-row advance">
+            <span>Advance Paid</span>
+            <span>${formatCurrency(advance)}</span>
+          </div>
+          <div class="bp-payment-row remaining">
+            <span>Remaining</span>
+            <span>${formatCurrency(Math.max(0, remaining))}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="bill-preview ${billModeClass}">
+
+        <div class="bp-header">
+          <div class="bp-brand">
+            <img src="${LOGO_IMAGE}" alt="${BRAND_NAME}" class="bp-logo-img" onerror="this.style.display='none'">
+            <div class="bp-brand-info">
+              <h1>${BRAND_NAME}</h1>
+              <div class="bp-tagline">${BRAND_TAGLINE}</div>
+              <div class="bp-address"><i class="fas fa-map-marker-alt"></i>${BRAND_ADDRESS}</div>
+              <div class="bp-contact"><i class="fas fa-phone-alt"></i>${BRAND_PHONE}</div>
+            </div>
+          </div>
+          <div class="bp-title">
+            <h2>${docTitle}</h2>
+            <div class="bp-ref">#${escapeHtml(data.quoteRef || '—')}</div>
+            ${data.parentRef ? `<div style="font-size:0.62rem; color:#888; margin-top:4px;">From: ${escapeHtml(data.parentRef)}</div>` : ''}
+          </div>
+        </div>
+
+        <div class="bp-info">
+          <div class="bp-info-box">
+            <h4><i class="fas fa-user-tie"></i> ${docType === 'challan' ? 'Deliver To' : 'Bill To'}</h4>
+            <p>
+              <span class="lbl">Name:</span> ${escapeHtml(data.customerName || '—')}<br>
+              <span class="lbl">Company:</span> ${escapeHtml(data.customerCompany || '—')}<br>
+              <span class="lbl">Email:</span> ${escapeHtml(data.customerEmail || '—')}<br>
+              <span class="lbl">Phone:</span> ${escapeHtml(data.customerPhone || '—')}
+            </p>
+          </div>
+          <div class="bp-info-box">
+            <h4><i class="fas fa-calendar-alt"></i> Document Details</h4>
+            <p>
+              <span class="lbl">Date:</span> ${data.quoteDate || '—'}<br>
+              ${docType === 'quote' ? `<span class="lbl">Valid:</span> ${data.validUntil || '—'}<br>` : ''}
+              ${data.orderDeliveryDate ? `<span class="lbl">Delivery:</span> ${data.orderDeliveryDate}<br>` : ''}
+              <span class="lbl">Mode:</span> <strong>${modeLabel}</strong>
+            </p>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:8%;" class="text-center">#</th>
+              <th style="width:42%;">Item Description</th>
+              <th style="width:12%;" class="text-center">Qty</th>
+              <th style="width:18%;" class="text-right">Price</th>
+              <th style="width:20%;" class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsRows || '<tr><td colspan="5" class="text-center" style="padding:20px; color:#999;">No items</td></tr>'}
+          </tbody>
+        </table>
+
+        <div class="bp-totals">
+          <div class="bp-totals-box">${totalsRows}</div>
+        </div>
+
+        ${paymentHTML}
+        ${termsHTML}
+
+        <div class="bp-signature">
+          <div class="bp-sign-block">
+            <div class="bp-sign-image-wrap">
+              <img src="${SIGNATURE_IMAGE}" alt="Signature" class="bp-sign-image" onerror="this.style.display='none'">
+            </div>
+            <div class="bp-sign-line"></div>
+            <div class="bp-sign-name">${BRAND_NAME}</div>
+            <div class="bp-sign-role">Authorised Signatory</div>
+          </div>
+          <div class="bp-sign-block right">
+            <div class="bp-sign-line"></div>
+            <div class="bp-sign-name">Customer Acceptance</div>
+            <div class="bp-sign-role">Signature & Date</div>
+          </div>
+        </div>
+
+        <div class="bp-thanks">
+          <i class="fas fa-check-circle"></i> Thank you for choosing Sameer Bags.
+        </div>
+      </div>
+    `;
+  }
+
+  // ==================== VIEW ====================
+  function openBillView(data) {
+    AppState.currentViewingBill = data;
+    $('viewBody').innerHTML = buildBillHTML(data);
+    $('viewModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeBillView() {
+    $('viewModal').classList.remove('active');
+    document.body.style.overflow = '';
+    AppState.currentViewingBill = null;
+  }
+
+  function loadBillToForm() {
+    if (!AppState.currentViewingBill) return;
+    setFormData(AppState.currentViewingBill);
+    saveDraft();
+    closeBillView();
+    $('historyModal').classList.remove('active');
+    document.body.style.overflow = '';
+    showToast('Document loaded ✓');
+  }
+
+  // ==================== PDF ====================
+  function exportPDF(data) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = buildBillHTML(data);
+    tempDiv.style.position = 'fixed';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '0';
+    tempDiv.style.width = '800px';
+    tempDiv.style.background = 'white';
+    tempDiv.style.padding = '20px';
+    document.body.appendChild(tempDiv);
+
+    const images = tempDiv.querySelectorAll('img');
+    const imagePromises = Array.from(images).map(img => {
+      if (img.complete && img.naturalHeight !== 0) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+        setTimeout(resolve, 3000);
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      const docPrefix = data.docType === 'order' ? 'SaleInvoice' : (data.docType === 'challan' ? 'Challan' : 'Quotation');
+      const opt = {
+        margin: [0.4, 0.4, 0.4, 0.4],
+        filename: `Sameer-Bags-${docPrefix}-${data.quoteRef || 'Doc'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true, allowTaint: true },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(tempDiv.firstElementChild).save()
+        .then(() => {
+          document.body.removeChild(tempDiv);
+          showToast('PDF downloaded ✓');
+        })
+        .catch(() => {
+          document.body.removeChild(tempDiv);
+          showToast('PDF failed', true);
+        });
+    });
+  }
+
+  // ==================== INIT ====================
+  function initDates() {
+    const today = new Date().toISOString().split('T')[0];
+    if (!$('quoteDate').value) $('quoteDate').value = today;
+    if (!$('validUntil').value) {
+      $('validUntil').value = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+    }
+    if (!$('orderDeliveryDate').value) {
+      $('orderDeliveryDate').value = new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0];
+    }
+  }
+
+  function init() {
+    AppState.gstEnabled = getGstPref();
+    AppState.gstPercent = getGstPercent();
+    AppState.discEnabled = getDiscPref();
+    AppState.discPercent = getDiscPercent();
+
+    $('gstCustom').value = AppState.gstPercent;
+    $('discountCustom').value = AppState.discPercent;
+
+    document.querySelectorAll('.percent-chip[data-gst]').forEach(c => {
+      c.classList.toggle('selected', parseFloat(c.dataset.gst) === AppState.gstPercent);
+    });
+    document.querySelectorAll('.percent-chip[data-disc]').forEach(c => {
+      c.classList.toggle('selected', parseFloat(c.dataset.disc) === AppState.discPercent);
+    });
+
+    const hasDraft = loadDraft();
+
+    if (!hasDraft) {
+      initDates();
+      AppState.docType = 'quote';
+      setDocType('quote');
+      $('quoteRef').value = 'SB-2025-001';
+      $('customerName').value = 'Mr. Rohan Mehta';
+      $('customerCompany').value = 'TravelCraft Pvt. Ltd.';
+      $('customerEmail').value = 'rohan@travelcraft.in';
+      $('customerPhone').value = '+91 98765 43210';
+
+      addItem({
+        desc: 'Printed Shopping Bag - Small',
+        qty: 100,
+        price: 12,
+        spec: { size: '10x12 inch', bagType: 'D-Cut Bag', bagColor: 'White', printColor: 'Black', note: '' }
+      });
+      addItem({
+        desc: 'Printed Shopping Bag - Medium',
+        qty: 100,
+        price: 18,
+        spec: { size: '12x16 inch', bagType: 'Loop Handle Bag', bagColor: 'Green', printColor: 'White', note: '' }
+      });
+      addItem({
+        desc: 'Printed Shopping Bag - Large',
+        qty: 100,
+        price: 25,
+        spec: { size: '16x20 inch', bagType: 'U-Cut Bag', bagColor: 'Black', printColor: 'Gold', note: '' }
+      });
+
+      renderTermsEditor(DEFAULT_TERMS);
+    } else {
+      initDates();
+    }
+
+    applyGstVisual();
+    applyDiscVisual();
+    recalculate();
+    updateItemNumbers();
+  }
+
+  // ==================== EVENTS ====================
+  function bindEvents() {
+    document.querySelectorAll('.doc-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const newType = tab.dataset.doctype;
+        if (newType === AppState.docType) return;
+
+        if (AppState.docType === 'quote' && newType === 'order') {
+          if (!confirm('Convert to Sale Invoice? A new invoice will be created.')) return;
+          convertToOrder();
+          return;
+        }
+        if (AppState.docType === 'order' && newType === 'challan') {
+          if (!confirm('Convert to Challan? A new challan will be created.')) return;
+          convertToChallan();
+          return;
+        }
+
+        setDocType(newType);
+        saveDraft();
+      });
+    });
+
+    $('addItemBtn').addEventListener('click', () => {
+      addItem({ desc: '', qty: 1, price: 0, spec: {} });
+      recalculate();
+      saveDraft();
+      const lastCard = itemsContainer.lastElementChild;
+      if (lastCard) setTimeout(() => lastCard.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    });
+
+    $('saveBtn').addEventListener('click', saveDocument);
+    $('newBtn').addEventListener('click', newEntry);
+    $('clearAllBtn').addEventListener('click', clearAll);
+
+    $('backupBtn').addEventListener('click', backupJSON);
+    $('restoreBtn').addEventListener('click', () => $('restoreFileInput').click());
+    $('restoreFileInput').addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        restoreJSON(this.files[0]);
+        this.value = '';
+      }
+    });
+
+    $('pdfBtn').addEventListener('click', () => exportPDF(getFormData()));
+    $('convertToOrderBtn').addEventListener('click', convertToOrder);
+    $('convertToChallanBtn').addEventListener('click', convertToChallan);
+    $('downloadPdfBtn').addEventListener('click', () => exportPDF(getFormData()));
+
+    $('historyBtn').addEventListener('click', () => {
+      renderHistory();
+      $('historyModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+    $('closeHistoryBtn').addEventListener('click', () => {
+      $('historyModal').classList.remove('active');
+      document.body.style.overflow = '';
+    });
+    $('historyModal').addEventListener('click', e => {
+      if (e.target === $('historyModal')) {
+        $('historyModal').classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+
+    $('closeViewBtn').addEventListener('click', closeBillView);
+    $('viewModal').addEventListener('click', e => {
+      if (e.target === $('viewModal')) closeBillView();
+    });
+    $('loadBillBtn').addEventListener('click', loadBillToForm);
+    $('pdfViewBtn').addEventListener('click', () => {
+      if (AppState.currentViewingBill) exportPDF(AppState.currentViewingBill);
+    });
+
+    $('gstToggleRow').addEventListener('click', () => setGstEnabled(!AppState.gstEnabled));
+    document.querySelectorAll('.percent-chip[data-gst]').forEach(chip => {
+      chip.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const rate = parseFloat(this.dataset.gst);
+        document.querySelectorAll('.percent-chip[data-gst]').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        AppState.gstPercent = rate;
+        $('gstCustom').value = rate;
+        saveGstPercent(rate);
+        $('gstSubtitle').textContent = rate + '% GST will be applied';
+        recalculate();
+        saveDraft();
+      });
+    });
+    $('gstCustom').addEventListener('input', function() {
+      const val = parseFloat(this.value) || 0;
+      AppState.gstPercent = val;
+      saveGstPercent(val);
+      document.querySelectorAll('.percent-chip[data-gst]').forEach(c => {
+        c.classList.toggle('selected', parseFloat(c.dataset.gst) === val);
+      });
+      $('gstSubtitle').textContent = val + '% GST will be applied';
+      recalculate();
+      saveDraft();
+    });
+
+    $('discountToggleRow').addEventListener('click', () => setDiscEnabled(!AppState.discEnabled));
+    document.querySelectorAll('.percent-chip[data-disc]').forEach(chip => {
+      chip.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const rate = parseFloat(this.dataset.disc);
+        document.querySelectorAll('.percent-chip[data-disc]').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        AppState.discPercent = rate;
+        $('discountCustom').value = rate;
+        saveDiscPercent(rate);
+        $('discountSubtitle').textContent = rate + '% discount will be applied';
+        recalculate();
+        saveDraft();
+      });
+    });
+    $('discountCustom').addEventListener('input', function() {
+      const val = parseFloat(this.value) || 0;
+      AppState.discPercent = val;
+      saveDiscPercent(val);
+      document.querySelectorAll('.percent-chip[data-disc]').forEach(c => {
+        c.classList.toggle('selected', parseFloat(c.dataset.disc) === val);
+      });
+      $('discountSubtitle').textContent = val + '% discount will be applied';
+      recalculate();
+      saveDraft();
+    });
+
+    $('orderAdvance').addEventListener('input', () => {
+      updateRemaining();
+      saveDraft();
+    });
+
+    document.addEventListener('input', e => {
+      if (e.target.matches('input, textarea, select') || e.target.isContentEditable) saveDraft();
+    });
+
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveDocument();
+      }
+    });
+  }
+
+  // ==================== START ====================
+  document.addEventListener('DOMContentLoaded', () => {
+    init();
+    bindEvents();
+  });
+
+})();
+</script>
+
+</body>
+</html>
